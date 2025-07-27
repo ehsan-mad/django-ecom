@@ -328,8 +328,8 @@
         <div class="category-grid">
             {% for category in main_products|slice:":4" %}
             <div class="category-card">
-                {% if category.cat_image %}
-                <img src="{{ category.cat_image.url }}" alt="{{ category.main_cat_name }}">
+                {% if category.get_image_url %}
+                <img src="{{ category.get_image_url }}" alt="{{ category.main_cat_name }}">
                 {% else %}
                 <img src="{% static 'website/images/placeholder.jpg' %}" alt="{{ category.main_cat_name }}">
                 {% endif %}
@@ -356,7 +356,7 @@
                 <div class="product-card">
                     <a href="{% url 'products_details' product.product_slug %}">
                         {% if product.product_image %}
-                        <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}">
+                        <img src="{{ product.get_image_url }}" alt="{{ product.product_name }}">
                         {% else %}
                         <img src="{% static 'website/images/placeholder.jpg' %}" alt="{{ product.product_name }}">
                         {% endif %}

@@ -14,7 +14,7 @@
         <div class="product-info-box">
             <div class="product-info-left product-info-body">
                 <div class="product-info-top">
-                    {% if product.product_image %}<img src="{{ product.product_image.url }}" alt="{{ product.product_name|default:'' }}">{% endif %}
+                    {% if product.get_image_url %}<img src="{{ product.get_image_url }}" alt="{{ product.product_name|default:'' }}">{% endif %}
                 </div>
                 {% comment %} {% for related_image in product_related_images %}
                     {% if related_image.image %}
@@ -111,6 +111,60 @@
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="{% static 'website/js/event.js' %}"></script>
 
-
-
+<script>
+$(document).ready(function() {
+    // Add to cart functionality
+    $('#add_to_cart').on('click', function(e) {
+        e.preventDefault();
+        
+        var productId = $(this).data('product-id');
+        var quantity = $('#cart_qty').val();
+        
+        // Make AJAX call to add to cart
+        $.ajax({
+            url: '{% url "add_or_update_cart" %}',
+            method: 'POST',
+            headers: {'X-Requested-With': 'XMLHttpRequest'},
+            data: {
+                'product_id': productId,
+                'quantity': quantity,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    // Success message
+                    alert('Item added to cart successfully!');
+                    
+                    // Update cart count if needed
+                    if (response.cart_item_count) {
+                        $('#cart-count').text(response.cart_item_count);
+                    }
+                } else if (response.status === 'error' && !response.is_authenticated) {
+                    // Redirect to login page if not authenticated
+                    window.location.href = '{% url "user_login" %}?next=' + window.location.pathname;
+                } else {
+                    // Other error
+                    alert(response.message || 'Error adding item to cart.');
+                }
+            },
+            error: function(xhr, status, error) {
+                alert('An error occurred. Please try again.');
+            }
+        });
+    });
+    
+    // Quantity increment/decrement
+    $('#increment').on('click', function() {
+        var qty = parseInt($('#cart_qty').val());
+        $('#cart_qty').val(qty + 1);
+    });
+    
+    $('#decrement').on('click', function() {
+        var qty = parseInt($('#cart_qty').val());
+        if (qty > 0) {
+            $('#cart_qty').val(qty - 1);
+        }
+    });
+});
+</script>
 {% endblock %}

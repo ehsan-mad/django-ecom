@@ -41,8 +41,14 @@
                                 </div>
                                  
                                 <div class="input-field">
-                                    <label for="product_image">Product Image</label>
+                                    <label for="product_image">Product Image (Upload File)</label>
                                     <input type="file" name="product_image" id="product_image" >
+                                </div>
+                                
+                                <div class="input-field">
+                                    <label for="product_image_url">Or Product Image URL</label>
+                                    <input type="url" name="product_image_url" id="product_image_url" placeholder="https://example.com/image.jpg">
+                                    <small style="color: #888;">You can either upload an image file or provide an image URL</small>
                                 </div>
                              
                             </div>
@@ -87,12 +93,12 @@
                                 
                                 <div class="input-field">
                                     <label for="discount_percentage">Discount Percentage</label>
-                                    <input type="number" name="discount_percentage" id="discount_percentage" >
+                                    <input type="number" name="discount_percentage" id="discount_percentage" value="0" min="0">
                                 </div>  
 
                                 <div class="input-field">
                                     <label for="discount_price">Discount Price</label>
-                                    <input type="number" name="discount_price" id="discount_price" >
+                                    <input type="number" name="discount_price" id="discount_price" value="0" min="0" step="0.01">
                                 </div> 
 
                             </div>

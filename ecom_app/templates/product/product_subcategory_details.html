@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %} Subcategory Details {% endblock %}
+
+{% block content %}
+<section class="customer-list-section">
+    <div class="container">
+        <div class="content">
+
+            <div class="title-box">
+                <div class="page-title">
+                    <h3>Subcategory Details</h3>
+                </div>
+                <div class="breadcrumbs">
+                    <ul class="breadcrumbs-list">
+                        <li><a href="{% url 'dashboard' %}"><span><img src="/static/images/icons/Home.svg" alt="home"></span>Home</a></li>
+                        <li><a href="{% url 'product_subcategory_list' %}">Subcategory List</a></li>
+                        <li><a href="#">Subcategory Details</a></li>
+                    </ul>
+                </div>
+                <div class="top-button">
+                    <div class="button-box">
+                        <a class="button primary-button" href="{% url 'edit_product_subcategory' subcategory.id %}">
+                            <span><img src="/static/images/icons/edit.svg" alt="edit"></span>
+                            Edit Subcategory
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="details-content">
+                <div class="details-box">
+                    <div class="details-title">
+                        <h4>Subcategory Information</h4>
+                    </div>
+                    <div class="details-inner-content">
+                        <div class="left-section">
+                            <div class="profile-image">
+                                {% if subcategory.get_image_url %}
+                                <img src="{{ subcategory.get_image_url }}" alt="{{ subcategory.sub_cat_name }}">
+                                {% else %}
+                                <img src="/static/images/icons/user-default.png" alt="Default Image">
+                                {% endif %}
+                            </div>
+                            <div class="profile-info">
+                                <h4>{{ subcategory.sub_cat_name }}</h4>
+                                <p>Main Category: {{ subcategory.main_category.main_cat_name }}</p>
+                                <p>Created By: {{ subcategory.created_by }}</p>
+                                <p>Created At: {{ subcategory.created_at|date:"d-M-Y H:i" }}</p>
+                                <p>Status: {% if subcategory.is_active %}Active{% else %}Inactive{% endif %}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

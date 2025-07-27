@@ -13,7 +13,6 @@ from django.db import transaction
 from .views_payment import create_payment_request
 from .utils import generate_otp
 # Create your views here.
-@login_required
 def paginate_data(request, page_num, data_list):
     items_per_page, max_pages = 10, 10
     paginator = Paginator(data_list, items_per_page)
@@ -82,20 +81,25 @@ def add_product_main_category(request):
     if request.method == "POST":
         main_cat_name = request.POST.get("main_cat_name")
         cat_slug = request.POST.get("cat_slug")
-   
+        cat_image_url = request.POST.get("cat_image_url")
         description = request.POST.get("description")
         
         if ProductMainCategory.objects.filter(main_cat_name=main_cat_name).exists():
             messages.error(request, "Product main category already exists.")
             return redirect('add_product_main_category')
         
-        Product_main_category=ProductMainCategory(
+        Product_main_category = ProductMainCategory(
             main_cat_name=main_cat_name,
             cat_slug=cat_slug,
-           
+            cat_image_url=cat_image_url,
             description=description,
             created_by=request.user
         )
+        
+        # Handle uploaded image file if provided
+        if 'cat_image' in request.FILES:
+            Product_main_category.cat_image = request.FILES['cat_image']
+            
         Product_main_category.save()
         messages.success(request, "Product main category added successfully.")
         return redirect('product_main_category_list')
@@ -112,6 +116,61 @@ def product_main_category_details(request, pk):
         'data': data
     }
     return render(request, "product/product_main_category_details.html", context)
+
+@staff_required
+def edit_product_main_category(request, pk):
+    if not checkUserPermission(request, "can_update", "backend/product-main-category-list/"):
+        return render(request, "403.html")
+    
+    category = get_object_or_404(ProductMainCategory, pk=pk)
+    
+    if request.method == "POST":
+        main_cat_name = request.POST.get("main_cat_name")
+        cat_image_url = request.POST.get("cat_image_url")
+        description = request.POST.get("description")
+        
+        # Check if the new name already exists, but exclude the current category
+        if ProductMainCategory.objects.filter(main_cat_name=main_cat_name).exclude(pk=pk).exists():
+            messages.error(request, "Product main category with this name already exists.")
+            return redirect('edit_product_main_category', pk=pk)
+        
+        # Update category fields
+        category.main_cat_name = main_cat_name
+        category.cat_image_url = cat_image_url
+        category.description = description
+        
+        # Handle uploaded image file if provided
+        if 'cat_image' in request.FILES:
+            category.cat_image = request.FILES['cat_image']
+            
+        category.save()
+        messages.success(request, "Product main category updated successfully.")
+        return redirect('product_main_category_list')
+    
+    context = {
+        'category': category
+    }
+    return render(request, "product/edit_product_main_category.html", context)
+    category = get_object_or_404(ProductMainCategory, pk=pk)
+    
+    if request.method == "POST":
+        category.main_cat_name = request.POST.get("main_cat_name")
+        category.cat_image_url = request.POST.get("cat_image_url")
+        category.description = request.POST.get("description")
+        category.updated_by = request.user
+        
+        # Handle uploaded image file if provided
+        if 'cat_image' in request.FILES:
+            category.cat_image = request.FILES['cat_image']
+            
+        category.save()
+        messages.success(request, "Product main category updated successfully.")
+        return redirect('product_main_category_list')
+    
+    context = {
+        'category': category
+    }
+    return render(request, "product/edit_product_main_category.html", context)
 
 @staff_required
 def product_list(request):
@@ -155,8 +214,24 @@ def product_edit(request, pk):
         product.sub_category = get_object_or_404(ProductSubCategory, pk=request.POST.get("sub_category"))
         product.price = request.POST.get("price")
         product.stock = request.POST.get("stock")
-        product.discount_price= request.POST.get("discount_price")
-        product.discount_percentage = request.POST.get("discount_percentage")        
+        
+        # Handle empty strings for numeric fields
+        try:
+            product.discount_price = float(request.POST.get("discount_price", 0)) if request.POST.get("discount_price") else 0
+        except ValueError:
+            product.discount_price = 0
+            
+        try:
+            product.discount_percentage = int(request.POST.get("discount_percentage", 0)) if request.POST.get("discount_percentage") else 0
+        except ValueError:
+            product.discount_percentage = 0
+            
+        product.product_image_url = request.POST.get("product_image_url")
+        
+        # Handle uploaded image file if provided
+        if 'product_image' in request.FILES:
+            product.product_image = request.FILES['product_image']
+                
         product.updated_by = request.user
         product.save()
         
@@ -175,6 +250,120 @@ def product_edit(request, pk):
 
 
 @staff_required
+def product_subcategory_list_view(request):
+    if not checkUserPermission(request, "can_view", "backend/product-sub-category-list/"):
+        return render(request, "403.html")
+    
+    subcategories = ProductSubCategory.objects.filter(is_active=True).order_by("-id")
+    page_number = request.GET.get('page', 1)
+    subcategories, paginator_list, last_page_number = paginate_data(request, page_number, subcategories)
+    
+    context = {
+        'paginator_list': paginator_list,
+        'last_page_number': last_page_number,
+        'subcategories': subcategories,
+    }
+    
+    return render(request, "product/subcategory_list.html", context)
+
+@staff_required
+def add_product_subcategory(request):
+    if not checkUserPermission(request, "can_add", "backend/product-sub-category-list/"):
+        return render(request, "403.html")
+    
+    if request.method == "POST":
+        sub_cat_name = request.POST.get("sub_cat_name")
+        sub_cat_slug = request.POST.get("sub_cat_slug")
+        main_category_id = request.POST.get("main_category")
+        sub_cat_image_url = request.POST.get("sub_cat_image_url")
+        
+        if ProductSubCategory.objects.filter(sub_cat_name=sub_cat_name).exists():
+            messages.error(request, "Product subcategory already exists.")
+            return redirect('add_product_subcategory')
+        
+        if not main_category_id:
+            messages.error(request, "Main category is required.")
+            return redirect('add_product_subcategory')
+            
+        main_category = get_object_or_404(ProductMainCategory, pk=main_category_id)
+        
+        product_subcategory = ProductSubCategory(
+            sub_cat_name=sub_cat_name,
+            sub_cat_slug=sub_cat_slug,
+            main_category=main_category,
+            sub_cat_image_url=sub_cat_image_url,
+            created_by=request.user
+        )
+        
+        # Handle uploaded image file if provided
+        if 'sub_cat_image' in request.FILES:
+            product_subcategory.sub_cat_image = request.FILES['sub_cat_image']
+            
+        product_subcategory.save()
+        messages.success(request, "Product subcategory added successfully.")
+        return redirect('product_subcategory_list')
+    
+    main_categories = ProductMainCategory.objects.filter(is_active=True)
+    context = {
+        'main_categories': main_categories
+    }
+    return render(request, "product/add_product_subcategory.html", context)
+
+@staff_required
+def product_subcategory_details(request, pk):
+    if not checkUserPermission(request, "can_view", "backend/product-sub-category-list/"):
+        return render(request, "403.html")
+    
+    subcategory = get_object_or_404(ProductSubCategory, pk=pk)
+    context = {
+        'subcategory': subcategory
+    }
+    return render(request, "product/product_subcategory_details.html", context)
+
+@staff_required
+def edit_product_subcategory(request, pk):
+    if not checkUserPermission(request, "can_update", "backend/product-sub-category-list/"):
+        return render(request, "403.html")
+    
+    subcategory = get_object_or_404(ProductSubCategory, pk=pk)
+    
+    if request.method == "POST":
+        sub_cat_name = request.POST.get("sub_cat_name")
+        main_category_id = request.POST.get("main_category")
+        sub_cat_image_url = request.POST.get("sub_cat_image_url")
+        
+        # Check if the new name already exists, but exclude the current subcategory
+        if ProductSubCategory.objects.filter(sub_cat_name=sub_cat_name).exclude(pk=pk).exists():
+            messages.error(request, "Product subcategory with this name already exists.")
+            return redirect('edit_product_subcategory', pk=pk)
+        
+        if not main_category_id:
+            messages.error(request, "Main category is required.")
+            return redirect('edit_product_subcategory', pk=pk)
+            
+        # Update subcategory fields
+        subcategory.sub_cat_name = sub_cat_name
+        subcategory.main_category = get_object_or_404(ProductMainCategory, pk=main_category_id)
+        subcategory.sub_cat_image_url = sub_cat_image_url
+        subcategory.updated_by = request.user
+        
+        # Handle uploaded image file if provided
+        if 'sub_cat_image' in request.FILES:
+            subcategory.sub_cat_image = request.FILES['sub_cat_image']
+            
+        subcategory.save()
+        messages.success(request, "Product subcategory updated successfully.")
+        return redirect('product_subcategory_list')
+    
+    main_categories = ProductMainCategory.objects.filter(is_active=True)
+    context = {
+        'subcategory': subcategory,
+        'main_categories': main_categories
+    }
+    return render(request, "product/edit_product_subcategory.html", context)
+
+
+@staff_required
 def create_product(request):
     if not checkUserPermission(request, "can_add", "backend/product-list/"):
         return render(request, "403.html")
@@ -187,10 +376,21 @@ def create_product(request):
         price = request.POST.get("price")
         stock = request.POST.get("stock")
         is_featured = request.POST.get("is_featured") == 'on'
-        discount_price = request.POST.get("discount_price", 0.00)
-        discount_percentage = request.POST.get("discount_percentage", 0)
+        
+        # Handle empty strings for numeric fields
+        try:
+            discount_price = float(request.POST.get("discount_price", 0)) if request.POST.get("discount_price") else 0
+        except ValueError:
+            discount_price = 0
+            
+        try:
+            discount_percentage = int(request.POST.get("discount_percentage", 0)) if request.POST.get("discount_percentage") else 0
+        except ValueError:
+            discount_percentage = 0
+            
         description = request.POST.get("description")
         product_image = request.FILES.get("product_image")
+        product_image_url = request.POST.get("product_image_url")
 
         if not main_category_id or not product_name or not price:
             messages.error(request, "Main category, product name, and price are required.")
@@ -211,6 +411,7 @@ def create_product(request):
         
         product = Product(
             product_image=product_image,
+            product_image_url=product_image_url,
             product_name=product_name,
             product_slug=product_slug,
             main_category=main_category,
@@ -344,13 +545,18 @@ def products_details(request, product_slug):
     if not product:
         messages.error(request, "Product not found.")
         return redirect('home')
+        
+    # For authenticated users, get their cart information
     if request.user.is_authenticated:
         customer = Customer.objects.filter(user=request.user).first()
-        product_cart = OrderCart.objects.filter(customer=customer, product=product, is_active=True, is_order=False).first()
-        if product_cart:
-            product.product_cart= product_cart
+        if customer:
+            product_cart = OrderCart.objects.filter(customer=customer, product=product, is_active=True, is_order=False).first()
+            if product_cart:
+                product.product_cart = product_cart
+    
     context = {
-        'product': product
+        'product': product,
+        'is_authenticated': request.user.is_authenticated
     }
     return render(request, "website/product/products_details.html", context)
 
@@ -384,13 +590,21 @@ def cart_amount_summary(request):
 
 # Remove @login_required decorator
 def add_or_update_cart(request):
-
-    
-    is_authenticated = request.user.is_authenticated
-    
-    
-    if is_authenticated:
-        if request.method == 'POST':
+    # Check if user is logged in
+    if not request.user.is_authenticated:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            # For AJAX requests, return a JSON response
+            return JsonResponse({
+                'status': 'error', 
+                'message': 'Login required',
+                'is_authenticated': False,
+                'redirect_url': '/user/login/'
+            })
+        else:
+            # For normal requests, show the login required page
+            return render(request, 'website/login_required.html')
+        
+    if request.method == 'POST':
             
             customer=Customer.objects.filter(user=request.user).first()
             
@@ -423,7 +637,7 @@ def add_or_update_cart(request):
                 response = {
                     'status': 'success',
                     'message': 'Cart updated successfully',
-                    'is_authenticated': is_authenticated,
+                    'is_authenticated': True,
                     'isRemoved': isRemoved,
                     'item_price': cart_item.total_amount,
                     'cart_item_count': cart_item_count,
@@ -434,25 +648,24 @@ def add_or_update_cart(request):
             
 
             except OrderCart.DoesNotExist:
-                return JsonResponse({'status': 'error', 'message': 'Cart item not found', 'is_authenticated': is_authenticated,})
+                return JsonResponse({'status': 'error', 'message': 'Cart item not found', 'is_authenticated': True})
 
-    return JsonResponse({'status': 'error', 'message': 'Invalid request', 'is_authenticated': is_authenticated,}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request', 'is_authenticated': True}, status=400)
 
 @login_required
+@login_required
 def cart(request):
-
     customer= Customer.objects.filter(user=request.user).first()
     context= {
         'customer': customer,
-
     }
 
     return render(request, 'website/cart/cart.html',context)    
 
 
 @login_required
+@login_required
 def checkout(request):
-
     amount_summary = cart_amount_summary(request)
     grand_total = amount_summary.get('grand_total', 0)
 

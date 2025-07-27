@@ -40,7 +40,7 @@
                 <p>Product Discount Price:{{product.discount_price}}</p>
                 <p>Product Image:</p>
                 {% if product.product_image %}
-                    <img src="{{ product.product_image.url }}" alt="Product Image" style="width:100px; height: 100px; border: 1px solid #ddd; border-radius: 6px;">
+                    <img src="{{ product.get_image_url }}" alt="Product Image" style="width:100px; height: 100px; border: 1px solid #ddd; border-radius: 6px;">
                 {% else %}
                     <p>No image available</p>
                 {% endif %}

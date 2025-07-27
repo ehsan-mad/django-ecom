@@ -1,0 +1,76 @@
+{% extends 'web_base.html' %}
+
+{% block title %}Login Required - Fico{% endblock %}
+
+{% load static %}
+
+{% block content %}
+<div class="login-required-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="login-required-box">
+                    <div class="icon-box">
+                        <img src="{% static 'website/images/icons/lock.svg' %}" alt="Login Required">
+                    </div>
+                    <h2>Login Required</h2>
+                    <p>You need to be logged in to add items to your cart and make purchases.</p>
+                    <p>By creating an account, you can save your cart items and complete the checkout process.</p>
+                    <div class="action-buttons">
+                        <a href="{% url 'user_login' %}" class="btn btn-primary">Login Now</a>
+                        <a href="{% url 'home' %}" class="btn btn-outline-secondary">Return to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block linkcss %}
+<style>
+    .login-required-page {
+        padding: 80px 0;
+    }
+    .login-required-box {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        text-align: center;
+    }
+    .icon-box {
+        margin-bottom: 24px;
+    }
+    .icon-box img {
+        width: 64px;
+        height: 64px;
+    }
+    .login-required-box h2 {
+        color: #333;
+        margin-bottom: 16px;
+    }
+    .login-required-box p {
+        color: #666;
+        margin-bottom: 24px;
+        font-size: 16px;
+    }
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+    }
+    .btn {
+        padding: 10px 24px;
+        font-weight: 500;
+    }
+    .btn-primary {
+        background-color: #4caf50;
+        border-color: #4caf50;
+    }
+    .btn-outline-secondary {
+        color: #555;
+        border-color: #ccc;
+    }
+</style>
+{% endblock %}

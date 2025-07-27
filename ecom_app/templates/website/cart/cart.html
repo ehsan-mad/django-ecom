@@ -32,7 +32,7 @@
                                                     <td>
                                                         <div class="cart-info-box">
                                                             <div class="cart-product-image">
-                                                                {% if cart.product.product_image %}<img src="{{ cart.product.product_image.url }}" alt="{{ cart.product.product_name }}">{% endif %}
+                                                                {% if cart.product.get_image_url %}<img src="{{ cart.product.get_image_url }}" alt="{{ cart.product.product_name }}">{% endif %}
                                                             </div>
                                                             <div class="cart-text">
                                                                 <p><strong>{{ cart.product.product_name }}</strong></p>

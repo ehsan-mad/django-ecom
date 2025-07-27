@@ -75,6 +75,8 @@ class ProductMainCategory(models.Model):
     cat_image = models.ImageField(
         upload_to="ecommerce/category_images/", blank=True, null=True
     )
+    cat_image_url = models.URLField(max_length=500, blank=True, null=True, 
+                                  help_text="Optional. You can provide a URL to an image instead of uploading a file.")
     description = models.TextField(blank=True, null=True)
     cat_ordering = models.IntegerField(default=0)
     created_by = models.ForeignKey(
@@ -98,6 +100,14 @@ class ProductMainCategory(models.Model):
 
     def __str__(self):
         return self.main_cat_name
+    
+    @property
+    def get_image_url(self):
+        if self.cat_image and hasattr(self.cat_image, 'url'):
+            return self.cat_image.url
+        elif self.cat_image_url:
+            return self.cat_image_url
+        return None
 
     def save(self, *args, **kwargs):
         if not self.cat_slug and self.main_cat_name:
@@ -120,6 +130,8 @@ class ProductSubCategory(models.Model):
     sub_cat_image = models.ImageField(
         upload_to="ecommerce/sub_category_images/", blank=True, null=True
     )
+    sub_cat_image_url = models.URLField(max_length=500, blank=True, null=True, 
+                                       help_text="Optional. You can provide a URL to an image instead of uploading a file.")
     sub_cat_ordering = models.IntegerField(default=0)
     created_by = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="sub_category_created_by"
@@ -138,6 +150,17 @@ class ProductSubCategory(models.Model):
     class Meta:
         db_table = "sub_product_category"
         verbose_name_plural = "Sub Product Categories"
+        
+    def __str__(self):
+        return self.sub_cat_name
+        
+    @property
+    def get_image_url(self):
+        if self.sub_cat_image and hasattr(self.sub_cat_image, 'url'):
+            return self.sub_cat_image.url
+        elif self.sub_cat_image_url:
+            return self.sub_cat_image_url
+        return None
         ordering = ["-is_active", "sub_cat_ordering"]
 
     def __str__(self):
@@ -161,6 +184,8 @@ class Product(models.Model):
     product_image = models.ImageField(
         upload_to="ecommerce/product_images/", blank=True, null=True
     )
+    product_image_url = models.URLField(max_length=500, blank=True, null=True, 
+                                     help_text="Optional. You can provide a URL to an image instead of uploading a file.")
     main_category = models.ForeignKey(
         ProductMainCategory, on_delete=models.CASCADE, related_name="products"
     )
@@ -200,6 +225,14 @@ class Product(models.Model):
     def __str__(self):
         return self.product_name
 
+    @property
+    def get_image_url(self):
+        if self.product_image and hasattr(self.product_image, 'url'):
+            return self.product_image.url
+        elif self.product_image_url:
+            return self.product_image_url
+        return None
+        
     def save(self, *args, **kwargs):
         if not self.product_slug and self.product_name:
             base_slug = slugify(self.product_name)

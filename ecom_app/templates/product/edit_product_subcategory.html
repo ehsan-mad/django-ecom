@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %} Edit Subcategory {% endblock %}
+
+{% block content %}
+<section class="customer-list-section">
+    <div class="container">
+        <div class="content">
+
+            <div class="title-box">
+                <div class="page-title">
+                    <h3>Edit Subcategory</h3>
+                </div>
+                <div class="breadcrumbs">
+                    <ul class="breadcrumbs-list">
+                        <li><a href="{% url 'dashboard' %}"><span><img src="/static/images/icons/Home.svg" alt="home"></span>Home</a></li>
+                        <li><a href="{% url 'product_subcategory_list' %}">Subcategory List</a></li>
+                        <li><a href="#">Edit Subcategory</a></li>
+                    </ul>
+                </div>
+                
+            </div>
+
+            <div class="form-area-content">
+                <div class="form-inner-content">
+                    
+                    <form method="post" enctype="multipart/form-data" class="form-horizontal" >
+                         <!-- Displaying messages (if any) -->
+                            {% if messages %}
+                                <div class="alert alert-info" role="alert" style="color:red">
+                                    {% for message in messages %}
+                                        <p>{{ message }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <div class="input-field">
+                                <label for="sub_cat_name">Subcategory Name*</label>
+                                <input type="text" name="sub_cat_name" id="sub_cat_name" value="{{ subcategory.sub_cat_name }}" required>
+                            </div>
+                             
+                            <div class="input-field">
+                                <label for="sub_cat_image">Subcategory Image (Upload File)</label>
+                                <input type="file" name="sub_cat_image" id="sub_cat_image">
+                                {% if subcategory.sub_cat_image %}
+                                <p>Current image: <a href="{{ subcategory.sub_cat_image.url }}" target="_blank">View</a></p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="input-field">
+                                <label for="sub_cat_image_url">Or Subcategory Image URL</label>
+                                <input type="url" name="sub_cat_image_url" id="sub_cat_image_url" value="{{ subcategory.sub_cat_image_url }}" placeholder="https://example.com/image.jpg">
+                                <small style="color: #888;">You can either upload an image file or provide an image URL</small>
+                            </div>
+                         
+                        </div>
+
+                        <div class="form-group">
+                            <div class="input-field">
+                                <label for="main_category">Main Category*</label>
+                                <div class="select2-box">
+                                    <select name="main_category" id="main_category" class="form-control select2-single" required>
+                                        <option value="">Select Main Category</option>
+                                        {% for category in main_categories %}
+                                            <option value="{{ category.id }}" {% if subcategory.main_category.id == category.id %}selected{% endif %}>{{ category.main_cat_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                       
+                        <div class="form-group">
+                            <div class="form-button">
+                                <input type="submit" class="button blue-button" value="Update">
+                                <a href="{% url 'product_subcategory_list' %}" class="button primary-button cancle-button">Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('.select2-single').select2();
+});
+</script>
+{% endblock %}

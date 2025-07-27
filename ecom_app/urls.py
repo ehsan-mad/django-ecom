@@ -14,6 +14,14 @@ urlpatterns = [
     path("backend/product-main-category-list/", views.product_main_category_list_view, name="product_main_category_list"),
     path("backend/add_product_main_category/", views.add_product_main_category, name="add_product_main_category"),
     path("backend/product-main-category/<int:pk>/", views.product_main_category_details, name="product_main_category_details"),
+    path("backend/product-main-category/edit/<int:pk>/", views.edit_product_main_category, name="edit_product_main_category"),
+    
+    # Subcategory management
+    path("backend/product-sub-category-list/", views.product_subcategory_list_view, name="product_subcategory_list"),
+    path("backend/add-product-subcategory/", views.add_product_subcategory, name="add_product_subcategory"),
+    path("backend/product-subcategory/<int:pk>/", views.product_subcategory_details, name="product_subcategory_details"),
+    path("backend/product-subcategory/edit/<int:pk>/", views.edit_product_subcategory, name="edit_product_subcategory"),
+    
     path("backend/product-list/", views.product_list, name="product_list"),
     path("backend/product/<int:pk>/", views.product_detail, name="product_detail"),
     path("backend/product/edit/<int:pk>/", views.product_edit, name="product_edit"),

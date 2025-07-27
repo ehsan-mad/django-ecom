@@ -63,16 +63,16 @@
               <td class="text-center">
                 <span
                   ><a href="">
-                    {% if data.product_image and data.product_image.url %}
+                    {% if data.get_image_url %}
                     <img
-                      src="{{ data.product_image.url }}"
-                      alt="user image"
-                      style="width: 50px; height: 50px"
+                      src="{{ data.get_image_url }}"
+                      alt="{{ data.main_cat_name }}"
+                      style="width: 50px; height: 50px; object-fit: cover;"
                     />
                     {% else %}
                     <img
                       src="/static/images/icons/user-default.png"
-                      alt="user image"
+                      alt="default image"
                     />
                     {% endif %}</a
                   >
@@ -106,7 +106,7 @@
                   </a>
                 </span>
                 <span class="more">
-                  <a href=" ">
+                  <a href="{% url 'edit_product_main_category' data.id %}">
                     <i class="fas fa-edit font-weight500"></i>
                   </a>
                 </span>

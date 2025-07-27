@@ -1,0 +1,4 @@
+#pip install mysqlclient
+#pip  freeze > requirement.txt
+#pip install -r requirement.txt
+#python manage.py load data fixtures/fixtures.json

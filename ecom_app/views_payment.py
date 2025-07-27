@@ -56,9 +56,9 @@ def create_payment_request(request, order_id):
 
     
 
-    success_url = request.build_absolute_uri(f'/backend/payment/success/{transaction_id}/')
-    fail_url = request.build_absolute_uri(f'/backend/payment/fail/{transaction_id}/')
-    cancel_url = request.build_absolute_uri(f'/backend/payment/cancel/{transaction_id}/')
+    success_url = request.build_absolute_uri(f'/payment/success/{transaction_id}/')
+    fail_url = request.build_absolute_uri(f'/payment/failed/{transaction_id}/')
+    cancel_url = request.build_absolute_uri(f'/payment/cancel/{transaction_id}/')
 
     OnlinePaymentRequest.objects.create(
         order=order_obj,

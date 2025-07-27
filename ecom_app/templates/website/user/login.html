@@ -92,8 +92,8 @@
 </style>
 <div class="login-container">
     <h2>Sign In to Your Account</h2>
-    {% if error %}
-        <div class="error-message">{{ error }}</div>
+    {% if error_message %}
+        <div class="error-message">{{ error_message }}</div>
     {% endif %}
     <form method="POST">
         {% csrf_token %}

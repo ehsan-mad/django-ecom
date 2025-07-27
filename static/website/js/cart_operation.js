@@ -74,7 +74,7 @@ $(document).ready(function () {
         const newQty = $(qtyInput).val();
 
         $.ajax({
-            url: '/backend/add-or-update-cart/',
+            url: '/add-or-update-cart/',
             type: 'POST',
             data: {
                 'product_id': productId,
@@ -87,7 +87,7 @@ $(document).ready(function () {
 
                 if (!response.is_authenticated) {
                     const currentUrl = window.location.href;
-                    const loginUrl = `/backend/login/?next=${encodeURIComponent(currentUrl)}`;
+                    const loginUrl = `/login/?next=${encodeURIComponent(currentUrl)}`;
                     
                     window.location.href = loginUrl;
                     return;
@@ -161,7 +161,7 @@ $(document).ready(function () {
                 console.error('Error updating cart:', response);
                 if (!response.is_authenticated) {
                     const currentUrl = window.location.pathname;
-                    const loginUrl = `/backend/login/?next=${encodeURIComponent(currentUrl)}`;
+                    const loginUrl = `/login/?next=${encodeURIComponent(currentUrl)}`;
                     
                     window.location.href = loginUrl;
                     return;

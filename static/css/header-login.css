@@ -1,0 +1,148 @@
+/* Enhanced login styling for the header */
+.profile-nav {
+    position: relative; /* Ensure relative positioning for dropdown menu */
+    display: inline-block; /* Ensure the nav is a block element */
+}
+
+.profile-nav a {
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+/* General styles for both login button and user profile */
+.profile-nav .login-text,
+.profile-nav .username-text {
+    margin-left: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+/* Styling for the login button */
+.login-btn-header {
+    padding: 4px 18px;  /* Reduced height (from 6px to 4px) and increased width (from 12px to 18px) */
+    border-radius: 16px; /* Reduced from 20px to match the shorter height */
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    min-width: 100px; /* Adding minimum width to ensure it's wider */
+}
+
+.login-btn-header:hover {
+    background-color: #4caf50;
+    border-color: #4caf50;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.login-btn-header:hover .login-text {
+    color: white;
+}
+
+.login-btn-header:hover img {
+    filter: brightness(0) invert(1);
+}
+
+/* Styling for the user profile link when logged in */
+.user-profile-link {
+    padding: 4px 18px; /* Reduced height and increased width to match login button */
+    border-radius: 16px; /* Reduced to match the shorter height */
+    background-color: #e8f5e9;
+    border: 1px solid #c8e6c9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    min-width: 100px; /* Adding minimum width to ensure it's wider */
+    position: relative; /* Ensure relative positioning for the dropdown */
+    cursor: pointer; /* Show pointer cursor */
+    display: inline-block; /* Ensure the link is a block element */
+}
+
+.user-profile-link:hover {
+    background-color: #4caf50;
+    border-color: #4caf50;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-profile-link:hover .username-text {
+    color: white;
+}
+
+.user-profile-link:hover img {
+    filter: brightness(0) invert(1);
+}
+
+/* Enhanced dropdown menu styling - works with existing styles */
+.profile-dropdown {
+    display: none; /* Hide by default */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 8px 0;
+    margin-top: 8px;
+    background-color: white;
+    width: 180px;
+    position: absolute; /* Ensure the dropdown is positioned absolutely */
+    z-index: 1000; /* Ensure the dropdown appears above other elements */
+    right: 0; /* Align to the right side of the parent */
+    top: 100%; /* Position below the parent */
+}
+
+/* Additional styling for dropdown items */
+.profile-dropdown li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Show the dropdown when hovering over the parent element - as a fallback */
+.profile-nav:hover .profile-dropdown {
+    display: block;
+    animation: fadeInUp 0.3s ease forwards;
+}
+
+.profile-dropdown li a {
+    color: #333;
+    transition: all 0.2s ease;
+    padding: 10px 16px;
+    font-size: 14px;
+    display: block; /* Make the entire area clickable */
+}
+
+.profile-dropdown li a:hover {
+    background-color: #f1f1f1;
+    color: #4caf50;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .profile-nav .login-text,
+    .profile-nav .username-text {
+        display: none;
+    }
+    
+    .login-btn-header,
+    .user-profile-link {
+        padding: 6px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 992px) {
+    .profile-nav .login-text,
+    .profile-nav .username-text {
+        font-size: 12px;
+    }
+}

@@ -37,9 +37,20 @@ def paginate_data(request, page_num, data_list):
     paginator_list = range(start_page, end_page)
 
     return data_list, paginator_list, last_page_number
+
+def staff_required(view_func):
+    @login_required
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_staff:
+            return redirect('dashboard_login')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+@staff_required
 def ecom_dashboard(request):
     return render(request, "home/home.html")
 
+@staff_required
 def setting_dashboard(request):
     get_setting_menu=MenuList.objects.filter(module_name="Setting", is_active=True)
     context ={
@@ -47,6 +58,7 @@ def setting_dashboard(request):
     }
     return render(request, "home/setting_dashboard.html", context)
 
+@staff_required
 def product_main_category_list_view(request):
     if not checkUserPermission(request, "can_view", "backend/product-main-category-list/"):
         return render(request, "403.html")
@@ -62,6 +74,7 @@ def product_main_category_list_view(request):
         
     return render(request, "product/main_category_list.html", context)
 
+@staff_required
 def add_product_main_category(request):
     if not checkUserPermission(request, "can_add", "backend/product-main-category-list/"):
         return render(request, "403.html")
@@ -89,7 +102,7 @@ def add_product_main_category(request):
     
     return render(request, "product/add_product_main_category.html")
 
-@login_required
+@staff_required
 def product_main_category_details(request, pk):
     if not checkUserPermission(request, "can_view", "backend/product-main-category-list/"):
         return render(request, "403.html")
@@ -100,7 +113,7 @@ def product_main_category_details(request, pk):
     }
     return render(request, "product/product_main_category_details.html", context)
 
-@login_required
+@staff_required
 def product_list(request):
     if not checkUserPermission(request, "can_view", "backend/product-list/"):
         return render(request, "403.html")
@@ -117,7 +130,7 @@ def product_list(request):
     
     return render(request, "product/product_list.html", context)
 
-@login_required
+@staff_required
 def product_detail(request, pk):
     if not checkUserPermission(request, "can_view", "backend/product-list/"):
         return render(request, "403.html")
@@ -128,7 +141,7 @@ def product_detail(request, pk):
     }
     return render(request, "product/product_detail.html", context)
 
-@login_required
+@staff_required
 def product_edit(request, pk):
     if not checkUserPermission(request, "can_update", "backend/product-list/"):
         return render(request, "403.html")
@@ -161,7 +174,7 @@ def product_edit(request, pk):
     return render(request, "product/product_edit.html", context)
 
 
-@login_required
+@staff_required
 def create_product(request):
     if not checkUserPermission(request, "can_add", "backend/product-list/"):
         return render(request, "403.html")
@@ -224,28 +237,67 @@ def create_product(request):
     return render(request, "product/add_new_product.html", context)
 
 
-def user_login(request):
+def dashboard_login(request):
+    # If user is already logged in, redirect based on role
+    if request.user.is_authenticated:
+        if request.user.is_staff:
+            return redirect('dashboard')
+        else:
+            return redirect('home')
+            
     if request.method == "POST":
-        phone = request.POST.get("phone")
+        username = request.POST.get("username")
         password = request.POST.get("password")
-
-        profile = Customer.objects.get(phone=phone)
-        user = authenticate(request, username=profile.user.username, password=password)
+        
+        user = authenticate(request, username=username, password=password)
         
         if user is not None:
             login(request, user)
-            return redirect('home')
-       
-        next_url=request.GET.get('next')
-        if next_url:
-           next_url = next_url.strip()
+            if user.is_staff:
+                return redirect('dashboard')
+            else:
+                # User is authenticated but not staff, redirect to frontend
+                return redirect('home')
         else:
-            next_url = "home"
-        
-        return redirect(next_url)
-           
+            return render(request, "dashboard/login.html", {"error": "Invalid username or password."})
     
-    return render(request, "website/user/login.html")
+    return render(request, "dashboard/login.html")
+
+
+def user_login(request):
+    error_message = None
+    
+    if request.method == "POST":
+        phone = request.POST.get("phone")
+        password = request.POST.get("password")
+        
+        try:
+            # First, check if a customer with this phone exists
+            customer = Customer.objects.get(phone=phone)
+            
+            # If we found a customer, try to authenticate the user
+            user = authenticate(request, username=customer.user.username, password=password)
+            
+            if user is not None:
+                login(request, user)
+                
+                # Redirect based on role
+                if user.is_staff:
+                    return redirect('dashboard')
+                else:
+                    # Get the next parameter or default to home
+                    next_url = request.GET.get('next', 'home')
+                    if next_url:
+                        next_url = next_url.strip()
+                    return redirect(next_url)
+            else:
+                error_message = "Invalid credentials. Please try again."
+        except Customer.DoesNotExist:
+            error_message = "No account found with this phone number."
+        except Exception as e:
+            error_message = "An error occurred. Please try again."
+    
+    return render(request, "website/user/login.html", {"error_message": error_message})
 
 @login_required
 def logout_view(request):
@@ -254,6 +306,8 @@ def logout_view(request):
 
 def register(request):
     if request.method == 'POST':
+        first_name = request.POST['first_name']
+        last_name = request.POST['last_name']
         username = request.POST['username']
         email = request.POST['email']
         phone = request.POST['phone']
@@ -264,11 +318,15 @@ def register(request):
             return render(request, 'website/user/register.html', {'error': 'Username already taken'})
         
         user = User.objects.create_user(username=username, email=email, password=password)
+        user.first_name = first_name
+        user.last_name = last_name
+        user.save()
+        
         Customer.objects.create(user=user, phone=phone, date_of_birth=dob, is_active=False)
 
         generate_otp(email)
 
-        return redirect(f'/backend/verify-otp/?email={email}')
+        return redirect(f'/verify-otp/?email={email}')
 
     return render(request, 'website/user/register.html')
 
@@ -481,7 +539,7 @@ def request_otp_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         generate_otp(email)
-        return redirect(f'/backend/verify-otp/?email={email}') 
+        return redirect(f'/verify-otp/?email={email}') 
 
 def verify_otp_view(request):
     email = request.GET.get('email')
@@ -510,3 +568,156 @@ def verify_otp_view(request):
             messages.error(request, "Invalid or expired OTP.")
 
     return render(request, 'website/user/verify_otp.html', {'email': email})    
+
+@login_required
+def my_account(request):
+    """
+    Display customer profile information and order history
+    """
+    customer = Customer.objects.filter(user=request.user).first()
+    if not customer:
+        messages.error(request, "Customer account not found.")
+        return redirect('home')
+    
+    # Get all orders for this customer
+    orders = Order.objects.filter(
+        customer=customer, 
+        is_active=True
+    ).order_by('-created_at')
+    
+    context = {
+        'customer': customer,
+        'orders': orders
+    }
+    
+    return render(request, 'website/user/my_account.html', context)
+
+def about(request):
+    """
+    View function for the about page
+    """
+    return render(request, 'website/about.html')
+
+def products(request):
+    """
+    View function for the products listing page with filtering and sorting
+    """
+    # Check if this is an AJAX request from Select2
+    if request.GET.get('search_term') and request.GET.get('format') == 'json':
+        search_term = request.GET.get('search_term', '')
+        print(f"Received Select2 search request with term: {search_term}")
+        
+        # Search for products that match the term
+        from django.db.models import Q
+        products_results = Product.objects.filter(
+            Q(product_name__icontains=search_term) | 
+            Q(description__icontains=search_term)
+        ).filter(is_active=True)[:10]  # Limit to 10 results
+        
+        # Log search results for debugging
+        print(f"Found {products_results.count()} products matching: {search_term}")
+        for p in products_results:
+            print(f"Product: {p.product_name}, Category: {p.main_category.main_cat_name if p.main_category else 'None'}, Price: {p.price}")
+        
+        # Format results for Select2
+        from django.http import JsonResponse
+        results = []
+        for p in products_results:
+            result = {
+                'id': p.product_name,
+                'text': p.product_name,
+                'category': p.main_category.main_cat_name if p.main_category else '',
+            }
+            # Add price information
+            result['price'] = str(p.price)
+                
+            if p.product_image:
+                result['image_url'] = request.build_absolute_uri(p.product_image.url)
+            results.append(result)
+        
+        # Debug what we're returning
+        print(f"Returning JSON response: {results}")
+        return JsonResponse({'results': results})
+    
+    # Regular view processing
+    # Get all active products
+    products_queryset = Product.objects.filter(is_active=True)
+    
+    # Get all categories and subcategories for the filter sidebar
+    categories = ProductMainCategory.objects.filter(is_active=True)
+    subcategories = ProductSubCategory.objects.filter(is_active=True)
+    
+    # Get filter parameters
+    search_query = request.GET.get('search', '')
+    selected_categories = request.GET.getlist('category')
+    selected_subcategories = request.GET.getlist('subcategory')
+    min_price = request.GET.get('min_price', '')
+    max_price = request.GET.get('max_price', '')
+    sort = request.GET.get('sort', 'newest')
+    featured = request.GET.get('featured', '')
+    
+    # Apply search filter if provided - now searches in name and description
+    if search_query:
+        from django.db.models import Q
+        products_queryset = products_queryset.filter(
+            Q(product_name__icontains=search_query) | 
+            Q(description__icontains=search_query)
+        )
+    
+    # Apply category filter if provided
+    if selected_categories:
+        products_queryset = products_queryset.filter(main_category__id__in=selected_categories)
+    
+    # Apply subcategory filter if provided
+    if selected_subcategories:
+        products_queryset = products_queryset.filter(sub_category__id__in=selected_subcategories)
+    
+    # Apply price range filter if provided
+    if min_price:
+        products_queryset = products_queryset.filter(price__gte=min_price)
+    if max_price:
+        products_queryset = products_queryset.filter(price__lte=max_price)
+        
+    # Filter by featured products if selected
+    if featured == 'yes':
+        products_queryset = products_queryset.filter(is_featured=True)
+    
+    # Apply sorting
+    if sort == 'price_low':
+        products_queryset = products_queryset.order_by('price')
+    elif sort == 'price_high':
+        products_queryset = products_queryset.order_by('-price')
+    elif sort == 'name_asc':
+        products_queryset = products_queryset.order_by('product_name')
+    elif sort == 'name_desc':
+        products_queryset = products_queryset.order_by('-product_name')
+    elif sort == 'discount':
+        products_queryset = products_queryset.order_by('-discount_percentage')
+    else:  # newest
+        products_queryset = products_queryset.order_by('-id')
+    
+    # Pagination
+    page_number = request.GET.get('page', 1)
+    products, paginator_list, last_page_number = paginate_data(request, page_number, products_queryset)
+    
+    # Check if any filter is applied
+    is_filtered = bool(search_query or selected_categories or selected_subcategories or 
+                      min_price or max_price or featured)
+    
+    context = {
+        'products': products,
+        'categories': categories,
+        'subcategories': subcategories,
+        'search_query': search_query,
+        'selected_categories': selected_categories,
+        'selected_subcategories': selected_subcategories,
+        'min_price': min_price,
+        'max_price': max_price,
+        'sort': sort,
+        'featured': featured,
+        'is_filtered': is_filtered,
+        'paginator_list': paginator_list,
+        'last_page_number': last_page_number,
+    }
+    
+    return render(request, 'website/product/products.html', context)

@@ -1,0 +1,442 @@
+{% extends 'web_base.html' %}
+
+{% block title %}All Products - Fico{% endblock %}
+
+{% load static %}
+
+{% block linkcss %}
+<link rel="stylesheet" href="{% static 'css/products.css' %}" />
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    /* Custom Select2 Styling */
+    .select2-container {
+        width: 100% !important;
+    }
+    .select2-container--default .select2-selection--single {
+        height: 40px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 6px 12px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 38px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 28px;
+        color: #555;
+    }
+    .select2-dropdown {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .select2-search--dropdown .select2-search__field {
+        padding: 8px;
+        border: 1px solid #ddd;
+    }
+    .select2-results__option {
+        padding: 8px 12px;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #4caf50;
+    }
+    
+    /* Enhanced Dropdown Styling */
+    .select2-result-product {
+        display: flex;
+        align-items: center;
+        padding: 5px 0;
+    }
+    .select2-result-product__img {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        object-fit: cover;
+        margin-right: 10px;
+    }
+    .select2-result-product__info {
+        flex: 1;
+    }
+    .select2-result-product__name {
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 2px;
+    }
+    .select2-result-product__category {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 2px;
+    }
+    .select2-result-product__price {
+        font-weight: 500;
+        color: #4caf50;
+        font-size: 13px;
+    }
+    .select2-container--default .select2-results__option--highlighted .select2-result-product__name,
+    .select2-container--default .select2-results__option--highlighted .select2-result-product__category,
+    .select2-container--default .select2-results__option--highlighted .select2-result-product__price {
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Products Listing Page -->
+<div class="products-page">
+    <div class="container-fluid">
+        <!-- Breadcrumbs -->
+        <div class="breadcrumbs">
+            <ul>
+                <li><a href="{% url 'home' %}">Home</a></li>
+                <li><span>All Products</span></li>
+            </ul>
+        </div>
+
+        <div class="row">
+            <!-- Filters Sidebar -->
+            <div class="col-lg-3 col-md-4">
+                <div class="filters-sidebar">
+                    <div class="filter-header">
+                        <h3>Filters</h3>
+                        {% if is_filtered %}
+                        <a href="{% url 'products' %}" class="clear-filters">Clear All</a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Search -->
+                    <div class="filter-section">
+                        <h4>Search Products</h4>
+                        <form action="{% url 'products' %}" method="GET" class="search-form" id="search-form">
+                            <select id="product-search-input" name="search" class="form-control">
+                                {% if search_query %}
+                                <option value="{{ search_query }}" selected>{{ search_query }}</option>
+                                {% endif %}
+                            </select>
+                            {% if selected_categories %}
+                                {% for cat in selected_categories %}
+                                <input type="hidden" name="category" value="{{ cat }}">
+                                {% endfor %}
+                            {% endif %}
+                            {% if selected_subcategories %}
+                                {% for subcat in selected_subcategories %}
+                                <input type="hidden" name="subcategory" value="{{ subcat }}">
+                                {% endfor %}
+                            {% endif %}
+                            {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
+                            {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
+                            {% if featured %}<input type="hidden" name="featured" value="{{ featured }}">{% endif %}
+                            {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+                            <button type="submit" class="search-btn">
+                                <img src="{% static 'website/images/icons/search.svg' %}" alt="Search">
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Categories Filter -->
+                    <div class="filter-section">
+                        <h4>Categories</h4>
+                        <form action="{% url 'products' %}" method="GET" id="category-form">
+                            {% if search_query %}<input type="hidden" name="search" value="{{ search_query }}">{% endif %}
+                            {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+                            {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
+                            {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
+                            {% if featured %}<input type="hidden" name="featured" value="{{ featured }}">{% endif %}
+                            {% for subcat in selected_subcategories %}
+                                <input type="hidden" name="subcategory" value="{{ subcat }}">
+                            {% endfor %}
+                            
+                            <div class="categories-list">
+                                {% for category in categories %}
+                                <div class="category-item">
+                                    <input type="checkbox" id="cat-{{ category.id }}" name="category" value="{{ category.id }}" 
+                                        {% if category.id|stringformat:"i" in selected_categories %}checked{% endif %}
+                                        onchange="document.getElementById('category-form').submit()">
+                                    <label for="cat-{{ category.id }}">{{ category.category_name }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Subcategories Filter -->
+                    <div class="filter-section">
+                        <h4>Subcategories</h4>
+                        <form action="{% url 'products' %}" method="GET" id="subcategory-form">
+                            {% if search_query %}<input type="hidden" name="search" value="{{ search_query }}">{% endif %}
+                            {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+                            {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
+                            {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
+                            {% if featured %}<input type="hidden" name="featured" value="{{ featured }}">{% endif %}
+                            {% for cat in selected_categories %}
+                                <input type="hidden" name="category" value="{{ cat }}">
+                            {% endfor %}
+                            
+                            <div class="categories-list">
+                                {% for subcategory in subcategories %}
+                                <div class="category-item">
+                                    <input type="checkbox" id="subcat-{{ subcategory.id }}" name="subcategory" value="{{ subcategory.id }}" 
+                                        {% if subcategory.id|stringformat:"i" in selected_subcategories %}checked{% endif %}
+                                        onchange="document.getElementById('subcategory-form').submit()">
+                                    <label for="subcat-{{ subcategory.id }}">{{ subcategory.sub_category_name }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Featured Products Filter -->
+                    <div class="filter-section">
+                        <h4>Featured Products</h4>
+                        <form action="{% url 'products' %}" method="GET" id="featured-form">
+                            {% if search_query %}<input type="hidden" name="search" value="{{ search_query }}">{% endif %}
+                            {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+                            {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
+                            {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
+                            {% for cat in selected_categories %}
+                                <input type="hidden" name="category" value="{{ cat }}">
+                            {% endfor %}
+                            {% for subcat in selected_subcategories %}
+                                <input type="hidden" name="subcategory" value="{{ subcat }}">
+                            {% endfor %}
+                            
+                            <div class="featured-toggle">
+                                <div class="toggle-item">
+                                    <input type="checkbox" id="featured-yes" name="featured" value="yes" 
+                                        {% if featured == 'yes' %}checked{% endif %}
+                                        onchange="document.getElementById('featured-form').submit()">
+                                    <label for="featured-yes">Show featured products only</label>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Price Range Filter -->
+                    <div class="filter-section">
+                        <h4>Price Range</h4>
+                        <form action="{% url 'products' %}" method="GET" class="price-form">
+                            {% if search_query %}<input type="hidden" name="search" value="{{ search_query }}">{% endif %}
+                            {% if selected_categories %}
+                                {% for cat in selected_categories %}
+                                <input type="hidden" name="category" value="{{ cat }}">
+                                {% endfor %}
+                            {% endif %}
+                            {% if selected_subcategories %}
+                                {% for subcat in selected_subcategories %}
+                                <input type="hidden" name="subcategory" value="{{ subcat }}">
+                                {% endfor %}
+                            {% endif %}
+                            {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+                            {% if featured %}<input type="hidden" name="featured" value="{{ featured }}">{% endif %}
+                            
+                            <div class="price-inputs">
+                                <input type="number" name="min_price" placeholder="Min" value="{{ min_price }}" min="0">
+                                <span>-</span>
+                                <input type="number" name="max_price" placeholder="Max" value="{{ max_price }}" min="0">
+                                <button type="submit" class="apply-btn">Apply</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="col-lg-9 col-md-8">
+                <div class="products-header">
+                    <h2>All Products {% if search_query %}matching "{{ search_query }}"{% endif %}</h2>
+                    
+                    <div class="products-sorting">
+                        <form action="{% url 'products' %}" method="GET" id="sort-form">
+                            {% if search_query %}<input type="hidden" name="search" value="{{ search_query }}">{% endif %}
+                            {% if selected_categories %}
+                                {% for cat in selected_categories %}
+                                <input type="hidden" name="category" value="{{ cat }}">
+                                {% endfor %}
+                            {% endif %}
+                            {% if selected_subcategories %}
+                                {% for subcat in selected_subcategories %}
+                                <input type="hidden" name="subcategory" value="{{ subcat }}">
+                                {% endfor %}
+                            {% endif %}
+                            {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
+                            {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
+                            {% if featured %}<input type="hidden" name="featured" value="{{ featured }}">{% endif %}
+                            
+                            <label for="sort">Sort by:</label>
+                            <select name="sort" id="sort" onchange="document.getElementById('sort-form').submit()">
+                                <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option>
+                                <option value="price_low" {% if sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                                <option value="price_high" {% if sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                                <option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
+                                <option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Name: Z to A</option>
+                                <option value="discount" {% if sort == 'discount' %}selected{% endif %}>Highest Discount</option>
+                            </select>
+                        </form>
+                    </div>
+                </div>
+
+                {% if products %}
+                <div class="products-grid">
+                    {% for product in products %}
+                    <div class="product-card">
+                        <div class="product-image">
+                            <a href="{% url 'products_details' product.product_slug %}">
+                                {% if product.product_image %}
+                                    <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}">
+                                {% else %}
+                                    <img src="{% static 'website/images/placeholder.jpg' %}" alt="{{ product.product_name }}">
+                                {% endif %}
+                            </a>
+                            {% if product.discount_percentage > 0 %}
+                            <span class="discount-badge">-{{ product.discount_percentage }}%</span>
+                            {% endif %}
+                        </div>
+                        <div class="product-info">
+                            <h3><a href="{% url 'products_details' product.product_slug %}">{{ product.product_name }}</a></h3>
+                            <p class="product-category">{{ product.main_category.category_name }}</p>
+                            <div class="product-price">
+                                {% if product.discount_percentage > 0 %}
+                                <span class="current-price">{{ product.current_price.currency.currency_icon }} {{ product.current_price.sale_price }}</span>
+                                <span class="original-price">{{ product.current_price.currency.currency_icon }} {{ product.current_price.price }}</span>
+                                {% else %}
+                                <span class="current-price">{{ product.current_price.currency.currency_icon }} {{ product.current_price.price }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if products.has_other_pages %}
+                <div class="pagination">
+                    <ul>
+                        {% if products.has_previous %}
+                        <li><a href="?page={{ products.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if featured %}&featured={{ featured }}{% endif %}{% for cat in selected_categories %}&category={{ cat }}{% endfor %}{% for subcat in selected_subcategories %}&subcategory={{ subcat }}{% endfor %}">&laquo;</a></li>
+                        {% endif %}
+
+                        {% for num in paginator_list %}
+                        <li {% if products.number == num %}class="active"{% endif %}>
+                            <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if featured %}&featured={{ featured }}{% endif %}{% for cat in selected_categories %}&category={{ cat }}{% endfor %}{% for subcat in selected_subcategories %}&subcategory={{ subcat }}{% endfor %}">{{ num }}</a>
+                        </li>
+                        {% endfor %}
+
+                        {% if products.has_next %}
+                        <li><a href="?page={{ products.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if sort %}&sort={{ sort }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if featured %}&featured={{ featured }}{% endif %}{% for cat in selected_categories %}&category={{ cat }}{% endfor %}{% for subcat in selected_subcategories %}&subcategory={{ subcat }}{% endfor %}">&raquo;</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                {% endif %}
+                
+                {% else %}
+                <div class="no-products">
+                    <p>No products found matching your criteria.</p>
+                    <a href="{% url 'products' %}" class="btn-reset">Reset Filters</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block linkScript %}
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    // Initialize Select2
+    $(document).ready(function() {
+        console.log("Document ready, initializing Select2");
+        
+        // Apply Select2 to the search input
+        $('#product-search-input').select2({
+            placeholder: "Search products...",
+            allowClear: true,
+            minimumInputLength: 2,
+            ajax: {
+                url: "{% url 'products' %}",
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    console.log("Search params:", params);
+                    return {
+                        search_term: params.term,
+                        format: 'json'
+                    };
+                },
+                processResults: function(data) {
+                    console.log("Received data:", data);
+                    return {
+                        results: data.results || []
+                    };
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error("AJAX error:", textStatus, errorThrown);
+                }
+            },
+            templateResult: function(product) {
+                if (product.loading) return product.text;
+                if (!product.id) return product.text;
+                
+                var $container = $("<div class='select2-result-product'></div>");
+                var $productInfo = $("<div class='select2-result-product__info'></div>");
+                
+                if (product.image_url) {
+                    var $img = $("<img class='select2-result-product__img' src='" + product.image_url + "' />");
+                    $container.append($img);
+                }
+                
+                $productInfo.append("<div class='select2-result-product__name'>" + product.text + "</div>");
+                
+                if (product.category) {
+                    $productInfo.append("<div class='select2-result-product__category'>" + product.category + "</div>");
+                }
+                
+                if (product.price) {
+                    $productInfo.append("<div class='select2-result-product__price'>$" + product.price + "</div>");
+                }
+                
+                $container.append($productInfo);
+                return $container;
+            },
+            templateSelection: function(product) {
+                return product.text || product.id;
+            }
+        });
+        
+        // Submit form when an option is selected
+        $('#product-search-input').on('select2:select', function(e) {
+            $('#search-form').submit();
+        });
+    });
+
+    // Add active class to the selected category, subcategory and featured items
+    document.addEventListener('DOMContentLoaded', function() {
+        // Activate selected categories
+        const categoryItems = document.querySelectorAll('.category-item input');
+        categoryItems.forEach(item => {
+            if (item.checked) {
+                item.parentNode.classList.add('active');
+            }
+        });
+        
+        // Handle filter form submission delay for better UX
+        const filterForms = document.querySelectorAll('form[id$="-form"]');
+        filterForms.forEach(form => {
+            const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    // Add a small delay to allow the user to select multiple options
+                    // before submitting if they click very quickly
+                    setTimeout(() => {
+                        form.submit();
+                    }, 100);
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

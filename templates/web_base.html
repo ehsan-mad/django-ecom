@@ -15,6 +15,7 @@
         {% block linkcss %}{% endblock %}
         <link href="{% static 'website/css/style.css' %}" rel="stylesheet" crossorigin="anonymous">
         <link href="{% static 'website/css/media-query.css' %}" rel="stylesheet" crossorigin="anonymous">
+        <link href="{% static 'css/header-login.css' %}" rel="stylesheet" crossorigin="anonymous">
 
     </head>
     <body>
@@ -34,8 +35,9 @@
                         </div>
                         <div class="nav-menu main-nav-menu" id="main-nav-menu">
                             <ul>
-                                <li><a href="#">About Fico</a></li>
-                                <li><a href="{% url 'product_list' %}">Products</a></li>
+                                <li><a href="{% url 'about' %}">About Fico</a></li>
+                                <li><a href="{% url 'products' %}">Products</a></li>
+                                <li><a href="{% url 'dashboard_login' %}">Admin Login</a></li>
                                 
                             </ul>
                         </div>
@@ -56,13 +58,19 @@
                             </li>
                             <li class="profile-nav">
                                 {% if user.is_authenticated %}
-                                    <a href="#"><img src="{% static 'website/images/icons/user-icon.svg' %}" alt="user"></a>
-                                    <ul>
-                                        <li><a href="">My Account</a></li>
+                                    <a href="javascript:void(0);" class="user-profile-link">
+                                        <img src="{% static 'website/images/icons/user-icon.svg' %}" alt="user">
+                                        <span class="username-text">{{ user.first_name|default:user.username }}</span>
+                                    </a>
+                                    <ul class="profile-dropdown">
+                                        <li><a href="{% url 'my_account' %}">My Account</a></li>
                                         <li><a href="{% url 'user_logout' %}">Logout</a></li>
                                     </ul>
                                 {% else %}
-                                    <a href=""><img src="{% static 'website/images/icons/user-icon.svg' %}" alt="user"></a>
+                                    <a href="{% url 'user_login' %}" class="login-btn-header">
+                                        <img src="{% static 'website/images/icons/user-icon.svg' %}" alt="user">
+                                        <span class="login-text">Login</span>
+                                    </a>
                                 {% endif %}
                             </li>
                            
@@ -199,7 +207,11 @@
         <!-- Custom Dropdown JS -->
         <script src="{% static 'website/js/custom_dropdown.js' %}"></script>
         
-        <script src="{% static 'website/js/cart_operation.js' %}"></script>
+        <script src="{% static 'website/js/cart_operation.js' %}?v={% now 'U' %}"></script>
+        <!-- Profile Dropdown JS -->
+        <script src="{% static 'js/profile-dropdown.js' %}?v={% now 'U' %}"></script>
+        <!-- Smooth Scroll JS -->
+        <script src="{% static 'js/smooth-scroll.js' %}?v={% now 'U' %}"></script>
 
         <script>
 

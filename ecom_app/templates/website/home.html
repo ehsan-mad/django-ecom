@@ -1,7 +1,7 @@
 
 {% extends 'web_base.html' %}
 
-{% block title %} Fico {% endblock %}
+{% block title %} Fico - Modern Furniture for Your Home {% endblock %}
 
 {% load static %}
 
@@ -9,71 +9,541 @@
 <!--For Home-->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <link rel="stylesheet" href="{% static 'website/css/home.css' %}" />
-
+<link rel="stylesheet" href="{% static 'css/login-options.css' %}" />
+<style>
+    /* Add custom styles for the enhanced home page */
+    .hero-section {
+        position: relative;
+        background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('{% static "website/images/banner/banner-web.png" %}');
+        background-size: cover;
+        background-position: center;
+        min-height: 550px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 50px;
+    }
+    
+    .hero-content {
+        color: white;
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .hero-content h1 {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    
+    .hero-content p {
+        font-size: 1.3rem;
+        margin-bottom: 30px;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    }
+    
+    .cta-button {
+        display: inline-block;
+        background-color: #4CAF50;
+        color: white;
+        font-size: 1.1rem;
+        padding: 12px 30px;
+        border-radius: 30px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: 2px solid #4CAF50;
+        font-weight: 600;
+    }
+    
+    .cta-button:hover {
+        background-color: white;
+        color: #4CAF50;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .category-section {
+        padding: 60px 0;
+    }
+    
+    .section-title {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .section-title h2 {
+        font-size: 2.5rem;
+        color: #333;
+        position: relative;
+        display: inline-block;
+        padding-bottom: 10px;
+    }
+    
+    .section-title h2:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 80px;
+        height: 3px;
+        background-color: #4CAF50;
+        transform: translateX(-50%);
+    }
+    
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+        margin-top: 30px;
+    }
+    
+    .category-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .category-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+    
+    .category-card-content {
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .category-card h3 {
+        font-size: 1.4rem;
+        margin-bottom: 10px;
+        color: #333;
+    }
+    
+    .category-card p {
+        color: #666;
+        margin-bottom: 15px;
+    }
+    
+    .btn-outline {
+        display: inline-block;
+        padding: 8px 20px;
+        border: 2px solid #4CAF50;
+        border-radius: 20px;
+        color: #4CAF50;
+        transition: all 0.3s;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    
+    .btn-outline:hover {
+        background: #4CAF50;
+        color: white;
+    }
+    
+    .featured-section {
+        background-color: #f9f9f9;
+        padding: 60px 0;
+    }
+    
+    .product-card {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .product-card img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+    }
+    
+    .product-info {
+        padding: 20px;
+    }
+    
+    .product-info h3 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+    
+    .product-info .category {
+        color: #777;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+    }
+    
+    .product-info .price {
+        font-weight: bold;
+        color: #4CAF50;
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+    }
+    
+    .btn-primary {
+        background: #4CAF50;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 20px;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+    }
+    
+    .btn-primary:hover {
+        background: #3d8b40;
+        transform: translateY(-2px);
+    }
+    
+    .testimonials-section {
+        padding: 60px 0;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .testimonial-card {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        margin: 20px 10px;
+        text-align: center;
+    }
+    
+    .testimonial-card img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin: 0 auto 20px;
+        border: 3px solid #4CAF50;
+    }
+    
+    .testimonial-card p {
+        font-style: italic;
+        color: #555;
+        margin-bottom: 20px;
+    }
+    
+    .testimonial-card h4 {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .testimonial-card .location {
+        color: #777;
+        font-size: 0.9rem;
+    }
+    
+    .newsletter-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('{% static "website/images/banner/banner-web.png" %}');
+        background-size: cover;
+        background-position: center;
+        padding: 80px 0;
+        color: white;
+        text-align: center;
+    }
+    
+    .newsletter-content {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .newsletter-content h2 {
+        font-size: 2.2rem;
+        margin-bottom: 20px;
+    }
+    
+    .newsletter-content p {
+        margin-bottom: 30px;
+        font-size: 1.1rem;
+    }
+    
+    .newsletter-form {
+        display: flex;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    .newsletter-form input {
+        flex: 1;
+        padding: 15px 20px;
+        border: none;
+        border-radius: 30px 0 0 30px;
+        font-size: 1rem;
+    }
+    
+    .newsletter-form button {
+        background: #4CAF50;
+        color: white;
+        border: none;
+        padding: 0 30px;
+        border-radius: 0 30px 30px 0;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    
+    .newsletter-form button:hover {
+        background: #3d8b40;
+    }
+</style>
 {% endblock %}
 
 
 {% block content %}
-<section class="artical hero-section" style="background-color: rgba(255, 255, 0, .2);">
-    <div class="hero-container">
-        <div class="banner-box">
-            <div class="swiper banner-swiper">
-                <div class="swiper-wrapper">
-                    <div class="swiper-slide">
-                        <a href="{% url 'product_list' %}">
-                            <img class="desktop" src="{% static 'website/images/banner/banner-web.png' %}" alt="Fico">
-                            <img class="mobile" src="{% static 'website/images/banner/banner-mobile.png' %}" alt="Fico">
-                        </a>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-content">
+        <h1>Transform Your Space</h1>
+        <p>Discover beautiful, handcrafted furniture that brings your home to life.</p>
+        <a href="{% url 'products' %}" class="cta-button">Shop Now</a>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="category-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Our Categories</h2>
+        </div>
+        <div class="category-grid">
+            {% for category in main_products|slice:":4" %}
+            <div class="category-card">
+                {% if category.cat_image %}
+                <img src="{{ category.cat_image.url }}" alt="{{ category.main_cat_name }}">
+                {% else %}
+                <img src="{% static 'website/images/placeholder.jpg' %}" alt="{{ category.main_cat_name }}">
+                {% endif %}
+                <div class="category-card-content">
+                    <h3>{{ category.main_cat_name }}</h3>
+                    <p>{{ category.description|truncatechars:80 }}</p>
+                    <a href="{% url 'products' %}?category={{ category.id }}" class="btn-outline">Browse Products</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="featured-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Featured Products</h2>
+        </div>
+        <div class="row">
+            {% for product in featured_products %}
+            <div class="col-lg-3 col-md-4 col-sm-6">
+                <div class="product-card">
+                    <a href="{% url 'products_details' product.product_slug %}">
+                        {% if product.product_image %}
+                        <img src="{{ product.product_image.url }}" alt="{{ product.product_name }}">
+                        {% else %}
+                        <img src="{% static 'website/images/placeholder.jpg' %}" alt="{{ product.product_name }}">
+                        {% endif %}
+                    </a>
+                    <div class="product-info">
+                        <h3><a href="{% url 'products_details' product.product_slug %}">{{ product.product_name }}</a></h3>
+                        <div class="category">{{ product.main_category.main_cat_name }}</div>
+                        <div class="price">
+                            {% if product.discount_percentage > 0 %}
+                            <span class="original-price" style="text-decoration: line-through; color: #999; margin-right: 10px;">
+                                {{ product.current_price.currency.currency_icon }} {{ product.current_price.price }}
+                            </span>
+                            <span>
+                                {{ product.current_price.currency.currency_icon }} {{ product.current_price.sale_price }}
+                            </span>
+                            {% else %}
+                            <span>{{ product.current_price.currency.currency_icon }} {{ product.current_price.price }}</span>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'products_details' product.product_slug %}" class="btn-primary">View Details</a>
                     </div>
                 </div>
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
-                <div class="swiper-pagination"></div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'products' %}" class="cta-button">View All Products</a>
+        </div>
+    </div>
+</section>
+
+<!-- Benefits Section -->
+<section class="benefits-section py-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-4 mb-4">
+                <div class="benefit-card p-4">
+                    <i class="fas fa-truck mb-3" style="font-size: 3rem; color: #4CAF50;"></i>
+                    <h3>Free Shipping</h3>
+                    <p>On all orders over $100</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="benefit-card p-4">
+                    <i class="fas fa-undo mb-3" style="font-size: 3rem; color: #4CAF50;"></i>
+                    <h3>Easy Returns</h3>
+                    <p>30-day return policy</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="benefit-card p-4">
+                    <i class="fas fa-headset mb-3" style="font-size: 3rem; color: #4CAF50;"></i>
+                    <h3>24/7 Support</h3>
+                    <p>Dedicated customer service</p>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-
-
-<section class="category-featured best-sellers discover_our_products">
-    <div class="container-fluid">
-        <div class="category-box">
-            <div class="best-sellers-text">
-                <h3 class="sub-title">Discover Our Products</h3>
-            </div>
-            <div class="category-list best-sellers-list">
-                {% for product in featured_products %}
-                    <div class="category-item">
-                        <a href="{% url 'products_details' product.product_slug %}" rel="noopener noreferrer">
-                            <img src="/media/{{ product.product_image }}" alt="{{ product.product_name }}">
-
-                        </a>
-                        <div class="item-text">
-                            <p><a href="{% url 'products_details' product.product_slug %}">{{ product.product_name }}</a></p>
-                            <p style="text-align: center;">{{ product.current_price.currency.currency_icon }} {{ product.current_price.sale_price }}</p>
-                        </div>
+<!-- Testimonials Section -->
+<section class="testimonials-section">
+    <div class="container">
+        <div class="section-title">
+            <h2>What Our Customers Say</h2>
+        </div>
+        <div class="swiper testimonials-swiper">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                    <div class="testimonial-card">
+                        <img src="https://via.placeholder.com/80" alt="Customer">
+                        <p>"I absolutely love my new dining set! The quality is exceptional and it fits perfectly in my home. The delivery was prompt and the team was very professional."</p>
+                        <h4>Sarah Johnson</h4>
+                        <div class="location">New York, NY</div>
                     </div>
-                {% endfor %}
+                </div>
+                <div class="swiper-slide">
+                    <div class="testimonial-card">
+                        <img src="https://via.placeholder.com/80" alt="Customer">
+                        <p>"Fico has the best customer service I've ever experienced. They helped me find the perfect sofa for my living room and even followed up after delivery to ensure I was satisfied."</p>
+                        <h4>Michael Rodriguez</h4>
+                        <div class="location">Los Angeles, CA</div>
+                    </div>
+                </div>
+                <div class="swiper-slide">
+                    <div class="testimonial-card">
+                        <img src="https://via.placeholder.com/80" alt="Customer">
+                        <p>"I've furnished my entire apartment with Fico products. The designs are modern, the quality is excellent, and the prices are reasonable. Highly recommended!"</p>
+                        <h4>Emily Chen</h4>
+                        <div class="location">Chicago, IL</div>
+                    </div>
+                </div>
             </div>
+            <div class="swiper-pagination"></div>
         </div>
     </div>
 </section>
 
+<!-- Newsletter Section -->
+<section class="newsletter-section">
+    <div class="container">
+        <div class="newsletter-content">
+            <h2>Stay Updated</h2>
+            <p>Subscribe to our newsletter for exclusive offers, new arrivals, and interior design tips.</p>
+            <form class="newsletter-form">
+                <input type="email" placeholder="Enter your email address" required>
+                <button type="submit">Subscribe</button>
+            </form>
+        </div>
+    </div>
+</section>
 {% endblock %}
 
 {% block linkScript %}
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<!-- Swiper JS -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script src="{% static 'js/event.js' %}"></script>
+<script src="{% static 'website/js/event.js' %}"></script>
 
 <script>
-    var swiper = new Swiper(".newCollections", {
-        slidesPerView: "auto",
-        spaceBetween: 15,
+    // Initialize the banner swiper if it exists
+    if (document.querySelector('.banner-swiper')) {
+        var bannerSwiper = new Swiper(".banner-swiper", {
+            slidesPerView: 1,
+            spaceBetween: 0,
+            loop: true,
+            autoplay: {
+                delay: 5500,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: ".swiper-pagination",
+                clickable: true,
+            },
+            navigation: {
+                nextEl: ".swiper-button-next",
+                prevEl: ".swiper-button-prev",
+            },
+        });
+    }
+    
+    // Initialize the testimonials swiper
+    var testimonialsSwiper = new Swiper(".testimonials-swiper", {
+        slidesPerView: 1,
+        spaceBetween: 30,
+        loop: true,
         autoplay: {
-            delay: 5500,
+            delay: 5000,
             disableOnInteraction: false,
         },
+        pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+        },
+        breakpoints: {
+            640: {
+                slidesPerView: 1,
+            },
+            768: {
+                slidesPerView: 2,
+            },
+            1024: {
+                slidesPerView: 3,
+            },
+        },
     });
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+    
+    // Newsletter form submission
+    const newsletterForm = document.querySelector('.newsletter-form');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('input[type="email"]').value;
+            alert(`Thank you for subscribing with: ${email}. We'll keep you updated with our latest offers!`);
+            this.reset();
+        });
+    }
 </script>
 {% endblock %}

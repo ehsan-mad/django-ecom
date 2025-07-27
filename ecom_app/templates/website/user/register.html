@@ -10,6 +10,12 @@
 {% endif %}
 <form method="POST">
     {% csrf_token %}
+    <label>First Name:</label><br>
+    <input type="text" name="first_name" required><br><br>
+
+    <label>Last Name:</label><br>
+    <input type="text" name="last_name" required><br><br>
+
     <label>Username:</label><br>
     <input type="text" name="username" required><br><br>
 

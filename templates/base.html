@@ -35,8 +35,12 @@
                                         <i class="fas fa-user"></i>
                                     </a>
                                     <div class="dropdown-menu dropdownRightZiro" aria-labelledby="dropdownMenuLink">
-                                        <a class="dropdown-item" href="/hr/my-password-change/">Change Password</a>
-                                        <a class="dropdown-item" href="">Log out</a>
+                                        {% if user.is_authenticated %}
+                                            <a class="dropdown-item" href="/hr/my-password-change/">Change Password</a>
+                                            <a class="dropdown-item" href="{% url 'user_logout' %}">Log out</a>
+                                        {% else %}
+                                            <a class="dropdown-item" href="{% url 'dashboard_login' %}">Log in</a>
+                                        {% endif %}
                                     </div>
                                 </li>
                             </ul>

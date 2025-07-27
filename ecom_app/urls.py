@@ -8,6 +8,7 @@ urlpatterns = [
     # path("admin/", admin.site.urls),
     path("backend/dashboard/", views.ecom_dashboard, name="dashboard"),
     path("backend/setting-dashboard/", views.setting_dashboard, name="setting_dashboard"),
+    path("backend/login/", views.dashboard_login, name="dashboard_login"),
     # path("login/", views.user_login, name="user_login"),
     # path("logout/", views.logout, name="logout"),
     path("backend/product-main-category-list/", views.product_main_category_list_view, name="product_main_category_list"),
@@ -21,10 +22,13 @@ urlpatterns = [
     
     #User/customer
     path("login/", views.user_login, name="user_login"),
-    path("logout/", views.logout, name="user_logout"),
+    path("logout/", views.logout_view, name="user_logout"),
     path("register/", views.register, name="register"),
     path('request-otp/', views.request_otp_view, name='request_otp'),
     path('verify-otp/', views.verify_otp_view, name='verify_otp'),
+    path("my-account/", views.my_account, name="my_account"),
+    path("about/", views.about, name="about"),
+    path("products/", views.products, name="products"),
     path("" , views.home, name="home"),
     path("products_details/<slug:product_slug>/", views.products_details, name="products_details"),
     path("add-or-update-cart/", views.add_or_update_cart, name="add_or_update_cart"),

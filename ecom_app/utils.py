@@ -19,15 +19,22 @@ def generate_otp(email):
         'expiry_minutes': 60,
     }
 
-    send_email(
-        [email],
-        ['saadkhan420000@gmail.com'],
-        [],
-        'Your OTP Code',
-        'website/mail/otp_mail.html',
-        mail_context
-    )
+    # Check if email is configured
+    if settings.EMAIL_HOST_USER and settings.EMAIL_HOST_PASSWORD:
+        send_email(
+            [email],
+            [],  # Empty CC list for production
+            [],
+            'Your OTP Code',
+            'website/mail/otp_mail.html',
+            mail_context
+        )
+    else:
+        # For development/testing when email is not configured
+        print(f"OTP for {email}: {code}")
+        print("Email configuration not found. OTP printed to console for testing.")
     
+    return code
     return code
 
 def send_email(mail_to,cc_list,bcc_list,subject,template,context):
@@ -56,5 +63,10 @@ def send_email(mail_to,cc_list,bcc_list,subject,template,context):
 
         try:
             email.send(fail_silently=False)
+            print(f"Email sent successfully to {list(mail_to_set)}")
         except Exception as e:
             print(f"Error sending email: {e}")
+            # In production, you might want to log this error or use a different notification method
+            return False
+    
+    return True

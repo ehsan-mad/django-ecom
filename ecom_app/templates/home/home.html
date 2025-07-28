@@ -58,14 +58,38 @@
             <div class="action-grid">
                 <a href="{% url 'product_main_category_list' %}" class="action-card">
                     <i class="fas fa-tags"></i>
-                    <h3>Manage Categories</h3>
-                    <p>View and manage product categories</p>
+                    <h3>Main Categories</h3>
+                    <p>Manage main product categories</p>
+                </a>
+                
+                <a href="{% url 'product_subcategory_list' %}" class="action-card">
+                    <i class="fas fa-folder-open"></i>
+                    <h3>Sub Categories</h3>
+                    <p>Manage product subcategories</p>
                 </a>
                 
                 <a href="{% url 'product_list' %}" class="action-card">
                     <i class="fas fa-box"></i>
                     <h3>Manage Products</h3>
                     <p>Add, edit, and manage products</p>
+                </a>
+                
+                <a href="{% url 'add_product_main_category' %}" class="action-card">
+                    <i class="fas fa-plus"></i>
+                    <h3>Add Main Category</h3>
+                    <p>Create new main category</p>
+                </a>
+                
+                <a href="{% url 'add_product_subcategory' %}" class="action-card">
+                    <i class="fas fa-plus-circle"></i>
+                    <h3>Add Subcategory</h3>
+                    <p>Create new product subcategory</p>
+                </a>
+                
+                <a href="{% url 'add_product' %}" class="action-card">
+                    <i class="fas fa-plus-square"></i>
+                    <h3>Add Product</h3>
+                    <p>Create new product</p>
                 </a>
                 
                 <a href="/admin/" class="action-card">

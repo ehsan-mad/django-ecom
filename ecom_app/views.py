@@ -58,7 +58,7 @@ def ecom_dashboard(request):
     
     # Calculate total revenue (sum of all completed orders)
     total_revenue = Order.objects.aggregate(
-        total=models.Sum('total_amount')
+        total=models.Sum('grand_total')
     )['total'] or Decimal('0.00')
     
     context = {

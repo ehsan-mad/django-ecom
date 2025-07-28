@@ -47,7 +47,28 @@ def staff_required(view_func):
 
 @staff_required
 def ecom_dashboard(request):
-    return render(request, "home/home.html")
+    from django.contrib.auth.models import User
+    from django.db import models
+    from decimal import Decimal
+    
+    # Get basic statistics
+    total_users = User.objects.count()
+    total_products = Product.objects.filter(is_active=True).count()
+    total_orders = Order.objects.count()
+    
+    # Calculate total revenue (sum of all completed orders)
+    total_revenue = Order.objects.aggregate(
+        total=models.Sum('total_amount')
+    )['total'] or Decimal('0.00')
+    
+    context = {
+        'total_users': total_users,
+        'total_products': total_products,
+        'total_orders': total_orders,
+        'total_revenue': total_revenue,
+    }
+    
+    return render(request, "home/home.html", context)
 
 @staff_required
 def setting_dashboard(request):

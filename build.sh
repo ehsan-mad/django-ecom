@@ -15,6 +15,8 @@ pip install -r requirements.txt
 echo "=== Creating necessary directories ==="
 mkdir -p staticfiles
 mkdir -p ecom_app/templates/website
+mkdir -p ecom_app/templates/home
+mkdir -p ecom_app/templates/dashboard
 mkdir -p static/css static/js
 
 echo "=== Making migrations ==="

@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Settings Dashboard - Fico{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1><i class="fas fa-cog"></i> Settings Dashboard</h1>
+        <p>Manage your system settings and configurations</p>
+    </div>
+    
+    {% if get_setting_menu %}
+    <div class="settings-grid">
+        {% for menu_item in get_setting_menu %}
+        <div class="setting-card">
+            <div class="setting-icon">
+                {% if menu_item.menu_icon %}
+                    <i class="{{ menu_item.menu_icon }}"></i>
+                {% else %}
+                    <i class="fas fa-cog"></i>
+                {% endif %}
+            </div>
+            <div class="setting-info">
+                <h3>{{ menu_item.menu_name }}</h3>
+                <a href="{{ menu_item.menu_url }}" class="setting-link">
+                    <span>Manage</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-settings">
+        <div class="no-settings-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>No Settings Available</h3>
+        <p>No setting menu items are currently configured or active.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.dashboard-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 30px 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,.15);
+}
+
+.dashboard-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.dashboard-header h1 i {
+    margin-right: 15px;
+    color: #ffd700;
+}
+
+.dashboard-header p {
+    font-size: 1.1rem;
+    margin: 0;
+    opacity: 0.9;
+}
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.setting-card {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,.08);
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+    position: relative;
+    overflow: hidden;
+}
+
+.setting-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.setting-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 35px rgba(0,0,0,.15);
+}
+
+.setting-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.setting-icon i {
+    color: white;
+    font-size: 24px;
+}
+
+.setting-info h3 {
+    color: #2c3e50;
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.setting-link {
+    display: inline-flex;
+    align-items: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.setting-link:hover {
+    transform: translateX(5px);
+    color: white;
+    text-decoration: none;
+}
+
+.setting-link span {
+    margin-right: 8px;
+}
+
+.setting-link i {
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+.setting-link:hover i {
+    transform: translateX(3px);
+}
+
+.no-settings {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,.08);
+}
+
+.no-settings-icon {
+    width: 80px;
+    height: 80px;
+    background: #ffc107;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.no-settings-icon i {
+    color: white;
+    font-size: 32px;
+}
+
+.no-settings h3 {
+    color: #2c3e50;
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+}
+
+.no-settings p {
+    color: #6c757d;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .dashboard-header h1 {
+        font-size: 2rem;
+    }
+    
+    .settings-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .setting-card {
+        padding: 25px;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,7 @@
+<!-- Placeholder image for products without images -->
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+  <rect width="300" height="300" fill="#f0f0f0"/>
+  <text x="150" y="150" font-family="Arial" font-size="24" text-anchor="middle" dominant-baseline="middle" fill="#999">No Image Available</text>
+  <path d="M150,100 C127.91,100 110,117.91 110,140 C110,162.09 127.91,180 150,180 C172.09,180 190,162.09 190,140 C190,117.91 172.09,100 150,100 Z M150,170 C133.43,170 120,156.57 120,140 C120,123.43 133.43,110 150,110 C166.57,110 180,123.43 180,140 C180,156.57 166.57,170 150,170 Z" fill="#ccc"/>
+  <path d="M90,190 L210,190 L210,230 L90,230 Z" fill="#ddd"/>
+</svg>

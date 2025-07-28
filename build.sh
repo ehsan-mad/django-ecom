@@ -26,18 +26,10 @@ python manage.py migrate --noinput
 echo "=== Collecting static files ==="
 python manage.py collectstatic --no-input
 
-echo "=== Creating superuser ==="
-python manage.py shell << EOF
-try:
-    from django.contrib.auth import get_user_model
-    User = get_user_model()
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
-        print('✅ Superuser created successfully')
-    else:
-        print('ℹ️ Superuser already exists')
-except Exception as e:
-    print(f'❌ Error creating superuser: {e}')
-EOF
+echo "=== Creating/Fixing Admin User ==="
+python manage.py fix_admin
+
+echo "=== Verifying Admin User ==="
+python manage.py check_admin
 
 echo "=== Build completed successfully! ==="

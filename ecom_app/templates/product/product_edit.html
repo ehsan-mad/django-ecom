@@ -115,6 +115,13 @@
                                     <label for="discount_price">Discount Price</label>
                                     <input type="number" name="discount_price" id="discount_price" value="{{ product.discount_price|default:0 }}" min="0" step="0.01">
                                 </div>
+                                <div class="input-field">
+                                    <label for="is_featured">Featured Product</label>
+                                    <div class="checkbox-field">
+                                        <input type="checkbox" name="is_featured" id="is_featured" value="on" {% if product.is_featured %}checked{% endif %}>
+                                        <label for="is_featured">Mark as featured product</label>
+                                    </div>
+                                </div>
                             </div>
                             
                            

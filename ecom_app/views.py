@@ -235,6 +235,7 @@ def product_edit(request, pk):
         product.sub_category = get_object_or_404(ProductSubCategory, pk=request.POST.get("sub_category"))
         product.price = request.POST.get("price")
         product.stock = request.POST.get("stock")
+        product.is_featured = request.POST.get("is_featured") == 'on'
         
         # Handle empty strings for numeric fields
         try:

@@ -1,29 +1,74 @@
-# RENDER.COM ENVIRONMENT VARIABLES SETUP
-# Add these in your Render dashboard under Environment tab:
+# RENDER.COM EMAIL SETUP GUIDE
 
-# EMAIL CONFIGURATION (Required for OTP verification)
-EMAIL_HOST_USER=your-actual-email@gmail.com
-EMAIL_HOST_PASSWORD=your-16-character-app-password
+## 🚨 URGENT: Set Environment Variables in Render Dashboard
 
-# EXAMPLE:
-# EMAIL_HOST_USER=john.doe@gmail.com  
-# EMAIL_HOST_PASSWORD=abcd efgh ijkl mnop
+Based on your logs, you need to add these exact environment variables in your Render dashboard:
 
-# Optional: Override defaults if needed
+### Step 1: Go to Render Dashboard
+1. Visit: https://dashboard.render.com
+2. Find your service: `ecom-tcxl`
+3. Click on it → Go to **Environment** tab
+
+### Step 2: Add These Environment Variables
+
+**Option A: TLS Configuration (Port 587)**
+```
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
+EMAIL_USE_SSL=False
+EMAIL_HOST_USER=saadkhan420000@gmail.com
+EMAIL_HOST_PASSWORD=ejyu xisl filb txql
+EMAIL_TIMEOUT=30
+```
 
-# DJANGO SETTINGS
-SECRET_KEY=your-production-secret-key
-DEBUG=False
+**Option B: SSL Configuration (Port 465) - Try if Option A fails**
+```
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=465
+EMAIL_USE_TLS=False
+EMAIL_USE_SSL=True
+EMAIL_HOST_USER=saadkhan420000@gmail.com
+EMAIL_HOST_PASSWORD=ejyu xisl filb txql
+EMAIL_TIMEOUT=30
+```
 
-# SSL COMMERCE (Already configured)
-SSLCOMMERZ_STORE_ID=gg6884dbcbe7492
-SSLCOMMERZ_STORE_PASSWORD=gg6884dbcbe7492@ssl
+### Step 3: Test Different SMTP Servers
 
-# IMPORTANT NOTES:
-# 1. Use your real Gmail address for EMAIL_HOST_USER
-# 2. Use the 16-character App Password (not your regular password)
-# 3. Remove spaces from the app password when entering in Render
-# 4. After adding variables, redeploy your service
+If Gmail doesn't work due to network restrictions, try these alternatives:
+
+**Outlook/Hotmail:**
+```
+EMAIL_HOST=smtp-mail.outlook.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=your-outlook-email@outlook.com
+EMAIL_HOST_PASSWORD=your-outlook-app-password
+```
+
+**SendGrid (Recommended for production):**
+```
+EMAIL_HOST=smtp.sendgrid.net
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=apikey
+EMAIL_HOST_PASSWORD=your-sendgrid-api-key
+```
+
+### Step 4: Redeploy After Adding Variables
+After adding environment variables:
+1. Click **Deploy Latest Commit** in Render
+2. Wait for deployment to complete
+3. Test registration with OTP
+
+### Current Status from Logs:
+- ✅ Email credentials are loaded correctly
+- ✅ App is running successfully  
+- ❌ DNS resolution issue for smtp.gmail.com
+- ❌ Error: `[Errno -2] Name or service not known`
+
+### Quick Fix Commands for Testing:
+Once deployed, you can test email with this management command:
+```bash
+python manage.py test_email your-email@gmail.com
+```

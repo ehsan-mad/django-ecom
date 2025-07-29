@@ -22,7 +22,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-this-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)  # Changed default to True
+DEBUG = config('DEBUG', default=True, cast=bool)
+
+# Environment Detection
+IS_PRODUCTION = not DEBUG and (
+    config('DATABASE_URL', default=None) is not None or 
+    'render.com' in config('ALLOWED_HOSTS', default='').lower()
+)
+
+print(f"🌍 ENVIRONMENT: {'Production' if IS_PRODUCTION else 'Local Development'}")
+print(f"🔧 DEBUG MODE: {'ON' if DEBUG else 'OFF'}")
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -74,29 +83,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ecom.wsgi.application'
 
-# Database - Use SQLite for now to avoid PostgreSQL compatibility issues
+# Database Configuration - Automatically detect environment
 DATABASE_URL = config('DATABASE_URL', default=None)
 
-# Temporarily use SQLite for all environments to avoid psycopg2 issues
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if IS_PRODUCTION:
+    # Production: Use PostgreSQL if DATABASE_URL is provided
+    print("💾 DATABASE: Using PostgreSQL (Production)")
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
     }
-}
-
-# Uncomment this section once Python 3.11 is working
-# if DATABASE_URL:
-#     DATABASES = {
-#         'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
-#     }
-# else:
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.sqlite3',
-#             'NAME': BASE_DIR / 'db.sqlite3',
-#         }
-#     }
+else:
+    # Local Development: Use SQLite
+    print("💾 DATABASE: Using SQLite (Local Development)")
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -141,20 +145,24 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Email Configuration
+# Email Configuration - Automatically detect environment
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
 EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=False, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_TIMEOUT = config('EMAIL_TIMEOUT', default=30, cast=int)
 
-# Use console backend if no email credentials are provided (for development/testing)
+# Environment Detection for Email Backend
 if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD or EMAIL_HOST_USER == 'your-email@gmail.com':
+    # Local Development: Use console backend when credentials not configured
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-    print("📧 EMAIL: Using console backend - emails will appear in terminal")
+    print("📧 EMAIL: Using console backend - emails will appear in terminal (Local Development)")
 else:
-    print(f"📧 EMAIL: Using SMTP backend with {EMAIL_HOST_USER}")
+    # Production: Use SMTP backend when credentials are properly configured
+    print(f"📧 EMAIL: Using SMTP backend with {EMAIL_HOST_USER} on {EMAIL_HOST}:{EMAIL_PORT} (Production)")
 
 # SSL Commerce Configuration
 SSLCOMMERZ_STORE_ID = config('SSLCOMMERZ_STORE_ID', default='')
@@ -162,9 +170,15 @@ SSLCOMMERZ_STORE_PASSWORD = config('SSLCOMMERZ_STORE_PASSWORD', default='')
 SSLCOMMERZ_API_URL = config('SSLCOMMERZ_API_URL', default='https://sandbox.sslcommerz.com/gwprocess/v4/api.php')
 SSLCOMMERZ_VALIDATION_API = config('SSLCOMMERZ_VALIDATION_API', default='https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php')
 
-# Production security settings
-if not DEBUG:
+# Production security settings - Only apply in production
+if IS_PRODUCTION:
+    print("🔒 SECURITY: Production security settings enabled")
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+else:
+    print("🔓 SECURITY: Development mode - relaxed security settings")
 

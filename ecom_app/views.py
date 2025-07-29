@@ -677,12 +677,33 @@ def add_or_update_cart(request):
 @login_required
 @login_required
 def cart(request):
-    customer= Customer.objects.filter(user=request.user).first()
-    context= {
+    customer = Customer.objects.filter(user=request.user).first()
+    cart_items = []
+    amount_summary = {
+        'sub_total_amount': 0,
+        'total_vat': 0, 
+        'total_discount': 0,
+        'grand_total': 0,
+    }
+    
+    if customer:
+        cart_items = OrderCart.objects.filter(customer=customer, is_active=True, is_order=False)
+        amount_summary = cart_amount_summary(request)
+    
+    # Simple currency context for now - you can replace this with actual currency model later
+    current_currency = {
+        'currency_icon': '$',  # Default to USD symbol
+        'currency_name': 'USD'
+    }
+    
+    context = {
         'customer': customer,
+        'cart_items': cart_items,
+        'amount_summary': amount_summary,
+        'current_currency': current_currency,
     }
 
-    return render(request, 'website/cart/cart.html',context)    
+    return render(request, 'website/cart/cart.html', context)    
 
 
 @login_required

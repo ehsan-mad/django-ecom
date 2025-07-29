@@ -10,20 +10,22 @@ def menu_items(request):
 
 
 def get_cart_item(request):
-
+    cart_items = []
+    amount_summary = {
+        'sub_total_amount': 0,
+        'total_vat': 0, 
+        'total_discount': 0,
+        'grand_total': 0,
+    }
    
     if request.user.is_authenticated:
         try:
-            customer= Customer.objects.filter(user=request.user).first()
-            cart_items = OrderCart.objects.filter(customer=customer, is_active=True, is_order=False)
-        except OrderCart.DoesNotExist:
+            customer = Customer.objects.filter(user=request.user).first()
+            if customer:
+                cart_items = OrderCart.objects.filter(customer=customer, is_active=True, is_order=False)
+        except (OrderCart.DoesNotExist, Customer.DoesNotExist):
             cart_items = []
-    else:
-        cart_items = []
-
-    amount_summary=cart_amount_summary(request)
-
     
-
+    amount_summary = cart_amount_summary(request)
 
     return {'cart_item_count': len(cart_items), 'cart_items': cart_items, 'amount_summary': amount_summary}

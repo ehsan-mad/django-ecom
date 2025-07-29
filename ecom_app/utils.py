@@ -10,7 +10,6 @@ from threading import Thread
 
 
 def generate_otp(email):
-
     code = str(random.randint(100000, 999999))
     EmailOTP.objects.create(email=email, code=code)
 
@@ -19,22 +18,28 @@ def generate_otp(email):
         'expiry_minutes': 60,
     }
 
-    # Check if email is configured
+    # Check if email is configured properly
     if settings.EMAIL_HOST_USER and settings.EMAIL_HOST_PASSWORD:
-        send_email(
+        print(f"📧 Attempting to send OTP email to {email}")
+        success = send_email(
             [email],
             [],  # Empty CC list for production
             [],
-            'Your OTP Code',
+            'Your OTP Code - Fico E-commerce',
             'website/mail/otp_mail.html',
             mail_context
         )
+        if success:
+            print(f"✅ OTP email sent successfully to {email}")
+        else:
+            print(f"❌ Failed to send OTP email to {email}")
     else:
         # For development/testing when email is not configured
+        print(f"\n🔧 EMAIL CONFIGURATION MISSING!")
         print(f"OTP for {email}: {code}")
-        print("Email configuration not found. OTP printed to console for testing.")
+        print("Please set EMAIL_HOST_USER and EMAIL_HOST_PASSWORD in your .env file")
+        print("Check EMAIL_SETUP_GUIDE.md for instructions")
     
-    return code
     return code
 
 def send_email(mail_to,cc_list,bcc_list,subject,template,context):
@@ -63,10 +68,14 @@ def send_email(mail_to,cc_list,bcc_list,subject,template,context):
 
         try:
             email.send(fail_silently=False)
-            print(f"Email sent successfully to {list(mail_to_set)}")
+            print(f"✅ Email sent successfully to {list(mail_to_set)}")
+            return True
         except Exception as e:
-            print(f"Error sending email: {e}")
-            # In production, you might want to log this error or use a different notification method
+            print(f"❌ Error sending email: {e}")
+            print("Common solutions:")
+            print("1. Check your EMAIL_HOST_USER and EMAIL_HOST_PASSWORD in .env")
+            print("2. Make sure you're using a Gmail App Password (not regular password)")
+            print("3. Ensure 2-Factor Authentication is enabled on Gmail")
             return False
     
     return True

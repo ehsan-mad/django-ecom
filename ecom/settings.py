@@ -150,8 +150,11 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 
 # Use console backend if no email credentials are provided (for development/testing)
-if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
+if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD or EMAIL_HOST_USER == 'your-email@gmail.com':
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    print("📧 EMAIL: Using console backend - emails will appear in terminal")
+else:
+    print(f"📧 EMAIL: Using SMTP backend with {EMAIL_HOST_USER}")
 
 # SSL Commerce Configuration
 SSLCOMMERZ_STORE_ID = config('SSLCOMMERZ_STORE_ID', default='')

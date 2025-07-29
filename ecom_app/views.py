@@ -599,7 +599,7 @@ def cart_amount_summary(request):
                 # Convert product price to Decimal to avoid type mixing
                 product_price = Decimal(str(item.product.price)) if item.product.price else Decimal('0.00')
                 total_vat += (product_price * Decimal('0.15'))
-                
+                total_discount += (item_total * (item.product.discount_percentage / 100)) if item.product.discount_percentage else Decimal('0.00')
             grand_total = sub_total_amount + total_vat - total_discount
     
     # Always return the summary (even if user is not authenticated)
